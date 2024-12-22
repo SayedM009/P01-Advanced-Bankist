@@ -36,6 +36,7 @@ const account4 = {
 const accounts = [account1, account2, account3, account4];
 
 // Elements
+const app = document.querySelector('.app');
 const labelWelcome = document.querySelector('.welcome');
 const labelDate = document.querySelector('.date');
 const labelBalance = document.querySelector('.balance__value');
@@ -47,6 +48,7 @@ const labelTimer = document.querySelector('.timer');
 const containerApp = document.querySelector('.app');
 const containerMovements = document.querySelector('.movements');
 
+const loginSection = document.querySelector('.login__section');
 const btnLogin = document.querySelector('.login__btn');
 const btnTransfer = document.querySelector('.form__btn--transfer');
 const btnLoan = document.querySelector('.form__btn--loan');
@@ -60,6 +62,9 @@ const inputTransferAmount = document.querySelector('.form__input--amount');
 const inputLoanAmount = document.querySelector('.form__input--loan-amount');
 const inputCloseUsername = document.querySelector('.form__input--user');
 const inputClosePin = document.querySelector('.form__input--pin');
+
+const logoutUsername = document.querySelector('.logout-username');
+const logoutBtn = document.querySelector('.logout-btn');
 
 /////////////////////////////////////////////////
 /////////////////////////////////////////////////
@@ -101,8 +106,6 @@ const addingMovements = function (movements) {
   });
 };
 
-addingMovements(account1.movements);
-
 // CREATEING USER NAMES OF THE ACCOUNTS
 function createUserNames(accs) {
   accs.forEach(acc => {
@@ -121,8 +124,6 @@ function calcDisplayBalance(movements) {
   const account_balance = movements.reduce((acc, cur) => acc + cur, 0);
   labelBalance.textContent = `${account_balance}€`;
 }
-
-calcDisplayBalance(account1.movements);
 
 // DISPLAY SUMMARY
 function calcDisplaySummary(movements) {
@@ -150,7 +151,51 @@ function calcDisplaySummary(movements) {
   labelSumInterest.textContent = `${interest}€`;
 }
 
-calcDisplaySummary(account1.movements);
+function dischargeUserDetails() {
+  inputLoginUsername.value = '';
+  inputLoginPin.value = '';
+}
+
+// LOGIN
+
+let currentAcc;
+
+btnLogin.addEventListener('click', function (e) {
+  // Prevent the default behavior of submit button in HTML form
+  e.preventDefault();
+  // 1. Chech username & password of the user & remove the user details
+  currentAcc = accounts.find(acc => acc.username === inputLoginUsername.value);
+
+  if (!(currentAcc && Number(inputLoginPin.value) === currentAcc.pin)) return;
+
+  // Emptying the login details
+  dischargeUserDetails();
+
+  // Set the owner name of the account info logout section
+  logoutUsername.textContent = currentAcc.owner;
+
+  // 2. Hide the login section and display the bank main section
+  loginSection.style.display = 'none';
+  app.style.display = 'grid';
+
+  // 3. Display Movements
+  addingMovements(currentAcc.movements);
+
+  // 4. Display Balance
+  calcDisplayBalance(currentAcc.movements);
+
+  // 5. Display Summary
+  calcDisplaySummary(currentAcc.movements);
+});
+
+// LOGOUT
+logoutBtn.addEventListener('click', function () {
+  // 1. Display the login section and hide the bank main section
+  loginSection.style.display = 'flex';
+  app.style.display = 'none';
+  // 2. Emptying the login details
+  dischargeUserDetails();
+});
 //////////////////////////////////////////////////////////////////////
 // 1. Task 01
 
