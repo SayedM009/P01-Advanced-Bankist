@@ -63,6 +63,7 @@ const inputLoanAmount = document.querySelector('.form__input--loan-amount');
 const inputCloseUsername = document.querySelector('.form__input--user');
 const inputClosePin = document.querySelector('.form__input--pin');
 
+const switchAccount = document.querySelector('.swithc-icon');
 const logoutUsername = document.querySelector('.logout-username');
 const logoutBtn = document.querySelector('.logout-btn');
 
@@ -120,29 +121,29 @@ function createUserNames(accs) {
 createUserNames(accounts);
 
 // DISPLAY BALANCE
-function calcDisplayBalance(movements) {
-  const account_balance = movements.reduce((acc, cur) => acc + cur, 0);
-  labelBalance.textContent = `${account_balance}€`;
+function calcDisplayBalance(acc) {
+  acc.balance = acc.movements.reduce((acc, cur) => acc + cur, 0);
+  labelBalance.textContent = `${acc.balance}€`;
 }
 
 // DISPLAY SUMMARY
-function calcDisplaySummary(movements) {
+function calcDisplaySummary(acc) {
   // INCOMES
-  const incomes = movements
+  const incomes = acc.movements
     .filter(mov => mov > 0)
     .reduce((acc, cur) => acc + cur, 0);
 
   labelSumIn.textContent = `${incomes}€`;
 
   // OUTCOMES
-  const outcomes = movements
+  const outcomes = acc.movements
     .filter(mov => mov < 0)
     .reduce((acc, cur) => acc + cur, 0);
 
   labelSumOut.textContent = `${Math.abs(outcomes)}€`;
 
   // INTEREST
-  const interest = movements
+  const interest = acc.movements
     .filter(mov => mov > 0)
     .map(deposit => deposit * 0.012)
     .filter(int => int >= 1)
@@ -172,20 +173,14 @@ btnLogin.addEventListener('click', function (e) {
   dischargeUserDetails();
 
   // Set the owner name of the account info logout section
-  logoutUsername.textContent = currentAcc.owner;
+  logoutUsername.textContent = `${currentAcc.owner} `;
 
   // 2. Hide the login section and display the bank main section
   loginSection.style.display = 'none';
   app.style.display = 'grid';
 
-  // 3. Display Movements
-  addingMovements(currentAcc.movements);
-
-  // 4. Display Balance
-  calcDisplayBalance(currentAcc.movements);
-
-  // 5. Display Summary
-  calcDisplaySummary(currentAcc.movements);
+  // 3. Update the UI
+  updatedUI();
 });
 
 // LOGOUT
@@ -196,6 +191,40 @@ logoutBtn.addEventListener('click', function () {
   // 2. Emptying the login details
   dischargeUserDetails();
 });
+
+// TRANSFER
+btnTransfer.addEventListener('click', function (e) {
+  e.preventDefault();
+  let amount = +inputTransferAmount.value;
+  const receiverAcc = accounts.find(
+    acc => acc.username === inputTransferTo.value
+  );
+
+  inputTransferTo.value = inputTransferAmount.value = '';
+
+  if (
+    amount > 0 &&
+    receiverAcc &&
+    receiverAcc.username != currentAcc.username &&
+    currentAcc.balance >= amount
+  ) {
+    currentAcc.movements.push(-amount);
+    receiverAcc.movements.push(amount);
+    updatedUI();
+  }
+});
+
+function updatedUI() {
+  // 1. Display Movements
+  addingMovements(currentAcc.movements);
+
+  // 2. Display Balance
+  calcDisplayBalance(currentAcc);
+
+  // 3. Display Summary
+  calcDisplaySummary(currentAcc);
+}
+
 //////////////////////////////////////////////////////////////////////
 // 1. Task 01
 

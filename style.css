@@ -269,6 +269,7 @@ nav {
 @media (max-width: 767px) {
   .summary {
     grid-row: none;
+    grid-row: 4;
   }
 }
 
