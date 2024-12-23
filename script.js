@@ -82,10 +82,12 @@ const movements = [200, 450, -400, 3000, -650, -130, 70, 1300];
 /////////////////////////////////////////////////
 
 // ADDING MOVEMENTS OF THE USER
-const addingMovements = function (movements) {
+const addingMovements = function (movements, sort) {
   containerMovements.innerHTML = '';
 
-  movements.forEach((mov, i) => {
+  const movs = sort ? movements.slice().sort((a, b) => a - b) : movements;
+
+  movs.forEach((mov, i) => {
     // Check the movment type
     const movement_type = mov > 0 ? 'deposit' : 'withdrawal';
     // Check the amout of the initial number
@@ -233,6 +235,14 @@ function updatedUI() {
   calcDisplaySummary(currentAcc);
 }
 
+// SORTING MOVEMENTS
+let sorting = false;
+btnSort.addEventListener('click', function (e) {
+  e.preventDefault();
+  addingMovements(currentAcc.movements, !sorting);
+  sorting = !sorting;
+});
+
 // REQUEST LOAN
 btnLoan.addEventListener('click', function (e) {
   // 1. Prevent the default behavior of the button of form
@@ -297,3 +307,46 @@ btnClose.addEventListener('click', function () {
 // }
 
 // calcAverageHumanAge([5, 2, 4, 1, 15, 8, 3]);
+
+// 3. Task 03
+
+const dogs = [
+  { weight: 22, curFood: 250, owners: ['Alice', 'Bob'] },
+  { weight: 8, curFood: 200, owners: ['Matida'] },
+  { weight: 13, curFood: 275, owners: ['Sarah', 'John'] },
+  { weight: 32, curFood: 340, owners: ['Micheal'] },
+];
+
+// 1. ForEach
+const recommandedDogFood = dogs.forEach(
+  dog => (dog.recommendedFood = dog.weight ** 0.75 * 28)
+);
+
+// 2. Find Sarah's dog
+const sarahsDog =
+  dogs.find(dog => dog.owners.includes('Sarah')).curFood >
+  dogs.find(dog => dog.owners.includes('Sarah'))?.recommendedFood
+    ? "it's eating to much"
+    : "it's eating to littel";
+
+// 3. Arrays of owners
+const { ownerEatTooMuch, ownerEatTooLittet } = dogs.reduce(
+  (owners, cur) => {
+    cur.curFood > cur.recommendedFood
+      ? owners['ownerEatTooMuch'].push(...cur.owners)
+      : owners['ownerEatTooLittet'].push(...cur.owners);
+    return owners;
+  },
+  {
+    ownerEatTooMuch: [],
+    ownerEatTooLittet: [],
+  }
+);
+
+// 4. Strings
+console.log(ownerEatTooMuch.join(' and ') + "'s dog eat too much");
+console.log(ownerEatTooLittet.join(' and ') + "'s dog ease to little");
+
+// 8.
+
+console.log(dogs.slice().sort((a, b) => a.recommendedFood - b.recommendedFood));
