@@ -184,36 +184,44 @@ btnLogin.addEventListener('click', function (e) {
 });
 
 // LOGOUT
-logoutBtn.addEventListener('click', function () {
+function hideUI() {
   // 1. Display the login section and hide the bank main section
   loginSection.style.display = 'flex';
   app.style.display = 'none';
   // 2. Emptying the login details
   dischargeUserDetails();
-});
+}
+
+logoutBtn.addEventListener('click', hideUI);
 
 // TRANSFER
 btnTransfer.addEventListener('click', function (e) {
+  // 1. Prevent the default behavior of the button of form
   e.preventDefault();
+  // 2. Store the amount that will be transferd and corvert it's type to Number
   let amount = +inputTransferAmount.value;
+  // 3. Find the right receiver account
   const receiverAcc = accounts.find(
     acc => acc.username === inputTransferTo.value
   );
-
+  // 4. Empty the input transfer to and amount
   inputTransferTo.value = inputTransferAmount.value = '';
-
+  // 5. Check if all condition are correct to continue the process
   if (
     amount > 0 &&
     receiverAcc &&
     receiverAcc.username != currentAcc.username &&
     currentAcc.balance >= amount
   ) {
+    // 6. Update the balance of the sender and receiver account
     currentAcc.movements.push(-amount);
     receiverAcc.movements.push(amount);
+    // 7. Update the UI to display the right numbers
     updatedUI();
   }
 });
 
+// UPDATE UI
 function updatedUI() {
   // 1. Display Movements
   addingMovements(currentAcc.movements);
@@ -225,6 +233,39 @@ function updatedUI() {
   calcDisplaySummary(currentAcc);
 }
 
+// REQUEST LOAN
+btnLoan.addEventListener('click', function (e) {
+  // 1. Prevent the default behavior of the button of form
+  e.preventDefault();
+  // 2. Store the amount that will be loaned and convert it's type to Number
+  let amount = +inputLoanAmount.value;
+  // 3. Check if all condition are correct to continue the process
+  if (amount > 0 && currentAcc.movements.some(mov => mov >= amount * 0.1)) {
+    // 4. Add the loan to the movements of the current account
+    currentAcc.movements.push(amount);
+    // 5. Update the balance of the current account
+    updatedUI();
+  }
+  // 6. Empty the load input
+  inputLoanAmount.value = '';
+});
+
+// CLOSE ACCOUNT
+btnClose.addEventListener('click', function () {
+  // 1. Find the account to be closed
+  const closedUserIndex = accounts.findIndex(
+    acc => acc.username === inputCloseUsername.value
+  );
+  // 2. Check if the account exists and the pin is correct
+  if (closedUserIndex >= 0 && currentAcc.pin !== Number(inputClosePin.value))
+    return;
+  // 3. Delete the account
+  accounts.splice(closedUserIndex, 1);
+  // 4. Hide the UI & Display the login section
+  hideUI();
+  // 5. empty the input close user name & pin
+  inputCloseUsername.value = inputClosePin.value = '';
+});
 //////////////////////////////////////////////////////////////////////
 // 1. Task 01
 
