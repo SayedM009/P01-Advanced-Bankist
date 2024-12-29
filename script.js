@@ -310,43 +310,48 @@ btnClose.addEventListener('click', function () {
 
 // 3. Task 03
 
-const dogs = [
-  { weight: 22, curFood: 250, owners: ['Alice', 'Bob'] },
-  { weight: 8, curFood: 200, owners: ['Matida'] },
-  { weight: 13, curFood: 275, owners: ['Sarah', 'John'] },
-  { weight: 32, curFood: 340, owners: ['Micheal'] },
-];
+// const dogs = [
+//   { weight: 22, curFood: 250, owners: ['Alice', 'Bob'] },
+//   { weight: 8, curFood: 200, owners: ['Matida'] },
+//   { weight: 13, curFood: 275, owners: ['Sarah', 'John'] },
+//   { weight: 32, curFood: 340, owners: ['Micheal'] },
+// ];
 
-// 1. ForEach
-const recommandedDogFood = dogs.forEach(
-  dog => (dog.recommendedFood = dog.weight ** 0.75 * 28)
-);
+// // 1. ForEach
+// const recommandedDogFood = dogs.forEach(
+//   dog => (dog.recommendedFood = dog.weight ** 0.75 * 28)
+// );
 
-// 2. Find Sarah's dog
-const sarahsDog =
-  dogs.find(dog => dog.owners.includes('Sarah')).curFood >
-  dogs.find(dog => dog.owners.includes('Sarah'))?.recommendedFood
-    ? "it's eating to much"
-    : "it's eating to littel";
+// // 2. Find Sarah's dog
+// const sarahsDog =
+//   dogs.find(dog => dog.owners.includes('Sarah')).curFood >
+//   dogs.find(dog => dog.owners.includes('Sarah'))?.recommendedFood
+//     ? "it's eating to much"
+//     : "it's eating to littel";
 
-// 3. Arrays of owners
-const { ownerEatTooMuch, ownerEatTooLittet } = dogs.reduce(
-  (owners, cur) => {
-    cur.curFood > cur.recommendedFood
-      ? owners['ownerEatTooMuch'].push(...cur.owners)
-      : owners['ownerEatTooLittet'].push(...cur.owners);
-    return owners;
-  },
-  {
-    ownerEatTooMuch: [],
-    ownerEatTooLittet: [],
-  }
-);
+// // 3. Arrays of owners
+// const { ownerEatTooMuch, ownerEatTooLittet } = dogs.reduce(
+//   (owners, cur) => {
+//     cur.curFood > cur.recommendedFood
+//       ? owners['ownerEatTooMuch'].push(...cur.owners)
+//       : owners['ownerEatTooLittet'].push(...cur.owners);
+//     return owners;
+//   },
+//   {
+//     ownerEatTooMuch: [],
+//     ownerEatTooLittet: [],
+//   }
+// );
 
-// 4. Strings
-console.log(ownerEatTooMuch.join(' and ') + "'s dog eat too much");
-console.log(ownerEatTooLittet.join(' and ') + "'s dog ease to little");
+// // 4. Strings
+// console.log(ownerEatTooMuch.join(' and ') + "'s dog eat too much");
+// console.log(ownerEatTooLittet.join(' and ') + "'s dog ease to little");
 
-// 8.
+// // 8.
 
-console.log(dogs.slice().sort((a, b) => a.recommendedFood - b.recommendedFood));
+// console.log(dogs.slice().sort((a, b) => a.recommendedFood - b.recommendedFood));
+
+const randomInt = (min, max) =>
+  Math.trunc(Math.random() * (max - min + 1) + min);
+
+console.log(randomInt(5, 10));
