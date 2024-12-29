@@ -151,7 +151,7 @@ nav {
 @media (max-width: 767px) {
   .app {
     display: none;
-    grid-template-columns: 1fr;
+    grid-template-columns: 38rem;
     grid-template-rows: none;
   }
 }
@@ -185,10 +185,11 @@ nav {
   .balance {
     align-items: center;
     grid-column: auto;
+    align-items: flex-start;
   }
 
   .balance__value {
-    font-size: 3.5rem;
+    font-size: 2rem;
   }
 }
 
@@ -266,13 +267,6 @@ nav {
   margin-top: 1rem;
 }
 
-@media (max-width: 767px) {
-  .summary {
-    grid-row: none;
-    grid-row: 4;
-  }
-}
-
 .summary__label {
   font-size: 1.2rem;
   font-weight: 500;
@@ -309,14 +303,18 @@ nav {
     display: flex;
     justify-content: center;
     align-items: center;
+    grid-row: none;
+    grid-row: 4;
   }
 
   .summary__label {
     font-size: 1rem;
+    margin-right: 0.4rem;
   }
 
   .summary__value {
     margin-right: 0.5rem;
+    font-size: 1.7rem;
   }
 }
 

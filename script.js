@@ -49,6 +49,18 @@ const account3 = {
   movements: [200, -200, 340, -300, -20, 50, 400, -460],
   interestRate: 0.7,
   pin: 3333,
+  movementsDates: [
+    '2019-11-01T13:15:33.035Z',
+    '2019-11-30T09:48:16.867Z',
+    '2019-12-25T06:04:23.907Z',
+    '2020-01-25T14:18:46.235Z',
+    '2020-02-05T16:33:06.386Z',
+    '2020-04-10T14:43:26.374Z',
+    '2020-06-25T18:49:59.371Z',
+    '2020-07-26T12:01:20.894Z',
+  ],
+  currency: 'USD',
+  locale: 'en-US',
 };
 
 const account4 = {
@@ -62,7 +74,6 @@ const account4 = {
     '2085-12-25T06:04:23.907Z',
     '2020-01-25T14:18:46.235Z',
     '2030-02-05T16:33:06.386Z',
-
   ],
   currency: 'USD',
   locale: 'en-US',
@@ -104,7 +115,6 @@ const logoutBtn = document.querySelector('.logout-btn');
 
 /////////////////////////////////////////////////
 /////////////////////////////////////////////////
-// LECTURES
 
 const currencies = new Map([
   ['USD', 'United States dollar'],
@@ -117,32 +127,37 @@ const movements = [200, 450, -400, 3000, -650, -130, 70, 1300];
 /////////////////////////////////////////////////
 
 // FORMATING THE DATE
-const formatingDate = function (date,locale) {
-
-  const calcDaysPassed = (date1, date2) => Math.round(Math.abs(date2 - date1) / (1000 * 60 * 60 * 24));
+const formatingDate = function (date, locale) {
+  const calcDaysPassed = (date1, date2) =>
+    Math.round(Math.abs(date2 - date1) / (1000 * 60 * 60 * 24));
 
   const dayPassed = calcDaysPassed(new Date(), date);
 
   if (dayPassed === 0) return 'Today';
   if (dayPassed === 1) return 'Yesterday';
   if (dayPassed <= 7) return `${dayPassed} days ago`;
-  else { 
+  else {
     const day = `${date.getDate()}`.padStart(2, 0);
     const month = `${date.getMonth() + 1}`.padStart(2, 0);
     const year = date.getFullYear();
     return new Intl.DateTimeFormat(locale).format(date);
-}
-}
+  }
+};
 // FORMATING THE CURRENCY
-const formatingCurrency = function (value,locale,currency) {
-  return new Intl.NumberFormat(currentAcc.locale, {style : "currency", currency: currentAcc.currency}).format(value);
-}
+const formatingCurrency = function (value, locale, currency) {
+  return new Intl.NumberFormat(currentAcc.locale, {
+    style: 'currency',
+    currency: currentAcc.currency,
+  }).format(value);
+};
 
 // ADDING MOVEMENTS OF THE USER
 const addingMovements = function (acc, sort) {
   containerMovements.innerHTML = '';
 
-  const movs = sort ? acc.movements.slice().sort((a, b) => a - b) : acc.movements;
+  const movs = sort
+    ? acc.movements.slice().sort((a, b) => a - b)
+    : acc.movements;
 
   movs.forEach((mov, i) => {
     // Check the movment type
@@ -151,8 +166,7 @@ const addingMovements = function (acc, sort) {
     const num_before = i > 8 ? '' : '0';
 
     const date = new Date(acc.movementsDates[i]);
-    const formatedDate = formatingDate(date,currentAcc.locale); 
-    
+    const formatedDate = formatingDate(date, currentAcc.locale);
 
     // Movement Row
     const html = `
@@ -184,7 +198,7 @@ createUserNames(accounts);
 // DISPLAY BALANCE
 function calcDisplayBalance(acc) {
   acc.balance = acc.movements.reduce((acc, cur) => acc + cur, 0);
-  labelBalance.textContent = formatingCurrency(acc.balance)
+  labelBalance.textContent = formatingCurrency(acc.balance);
 }
 
 // DISPLAY SUMMARY
@@ -194,7 +208,7 @@ function calcDisplaySummary(acc) {
     .filter(mov => mov > 0)
     .reduce((acc, cur) => acc + cur, 0);
 
-  labelSumIn.textContent =  formatingCurrency(incomes);
+  labelSumIn.textContent = formatingCurrency(incomes);
 
   // OUTCOMES
   const outcomes = acc.movements
@@ -219,50 +233,77 @@ function dischargeUserDetails() {
   inputLoginPin.value = '';
 }
 
+let currentAcc, timer;
+
+// START LOGOUT TIMER FUNCTION
+function startLogoutTimer() {
+  let time = 300;
+
+  function tick() {
+    const min = String(Math.trunc(time / 60)).padStart(2, 0);
+    const sec = String(Math.trunc(time % 60)).padStart(2, 0);
+    labelTimer.textContent = `${min}:${sec}`;
+    if (time === 0) hideUI();
+    time -= 1;
+  }
+
+  tick();
+  timer = setInterval(tick, 1000);
+}
+
+// STOP LOGOUT TIMER FUNCTION
+const stopTimer = () => clearInterval(timer);
+
 // LOGIN
-let currentAcc;
-
 function login(e) {
-// Prevent the default behavior of submit button in HTML form
-e.preventDefault();
-// 1. Chech username & password of the user & remove the user details
-currentAcc = accounts.find(acc => acc.username === inputLoginUsername.value.trim());
+  // 1. Prevent the default behavior of submit button in HTML form
+  e.preventDefault();
+  // 2. Check username & password of the user & remove the user details
+  currentAcc = accounts.find(
+    acc => acc.username === inputLoginUsername.value.toLowerCase().trim()
+  );
+  // 3. Check if the account exsit and password is correct
+  if (!(currentAcc && Number(inputLoginPin.value) === currentAcc.pin)) return;
 
-if (!(currentAcc && Number(inputLoginPin.value) === currentAcc.pin)) return;
+  // 4. Emptying the login details
+  dischargeUserDetails();
 
-// Emptying the login details
-dischargeUserDetails();
+  // 5. Set the current date and time of the active account.
+  const now = new Date();
+  const options = {
+    hour: 'numeric',
+    minute: 'numeric',
+    day: 'numeric',
+    month: 'numeric',
+    year: 'numeric',
+    hour12: true,
+  };
+  labelDate.textContent = new Intl.DateTimeFormat(
+    currentAcc.locale,
+    options
+  ).format(now);
 
-// Set the current date and time of the active account.
-const now = new Date();
-const options = {
-  hour: 'numeric',
-  minute: 'numeric',
-  day: 'numeric',
-  month: 'numeric',
-  year: 'numeric',
-  hour12: true,
-  weekday: 'long',
+  // 6. Run the logout timer
+  startLogoutTimer();
 
+  // 7. Set the owner name of the account info logout section
+  logoutUsername.textContent = `${currentAcc.owner} `;
+
+  // 8. Hide the login section and display the bank main section
+  loginSection.style.display = 'none';
+  app.style.display = 'grid';
+
+  // 9. Update the UI
+  updatedUI();
 }
-labelDate.textContent = new Intl.DateTimeFormat(currentAcc.locale, options).format(now)
 
-// Set the owner name of the account info logout section
-logoutUsername.textContent = `${currentAcc.owner} `;
-
-// 2. Hide the login section and display the bank main section
-loginSection.style.display = 'none';
-app.style.display = 'grid';
-
-// 3. Update the UI
-updatedUI();
-}
-
+// LOGIN WITH MOUSE CLICK
 btnLogin.addEventListener('click', login);
 
-loginSection.addEventListener("keydown", function(e){
-  if(e.key === "Enter") login(e);
-})
+// LOGIN WITH ENTER BUTTON
+loginSection.addEventListener('keydown', e =>
+  e.key === 'Enter' ? login(e) : null
+);
 
 // LOGOUT
 function hideUI() {
@@ -271,8 +312,9 @@ function hideUI() {
   app.style.display = 'none';
   // 2. Emptying the login details
   dischargeUserDetails();
+  // 3. Stopping the logout timer
+  stopTimer();
 }
-
 logoutBtn.addEventListener('click', hideUI);
 
 // TRANSFER
@@ -285,7 +327,6 @@ btnTransfer.addEventListener('click', function (e) {
   const receiverAcc = accounts.find(
     acc => acc.username === inputTransferTo.value
   );
-  console.log(receiverAcc);
   // 4. Empty the input transfer to and amount
   inputTransferTo.value = inputTransferAmount.value = '';
   // 5. Check if all condition are correct to continue the process
@@ -300,10 +341,16 @@ btnTransfer.addEventListener('click', function (e) {
     receiverAcc.movements.push(amount);
 
     // 7. Update the movements dates
-    currentAcc.movementsDates.push(new Date().toISOString())
-    receiverAcc.movementsDates.push(new Date().toISOString())
+    currentAcc.movementsDates.push(new Date().toISOString());
+    receiverAcc.movementsDates.push(new Date().toISOString());
 
-    // 8. Update the UI to display the right numbers
+    // 8. Re-run the logout timer
+    stopTimer();
+
+    // 9. Run logout timer
+    startLogoutTimer();
+
+    // 10. Update the UI to display the right numbers
     updatedUI();
   }
 });
@@ -339,10 +386,15 @@ btnLoan.addEventListener('click', function (e) {
     // 4. Add the loan to the movements of the current account
     currentAcc.movements.push(amount);
     // 5. Add the loan date to the movements dates of the current account
-    currentAcc.movementsDates.push(new Date().toISOString())
+    currentAcc.movementsDates.push(new Date().toISOString());
     // 6. Update the balance of the current account
     updatedUI();
+    // 7. Re-run the logout timer
+    stopTimer();
+    // 8. Run logout timer
+    startLogoutTimer();
   }
+
   // 6. Empty the load input
   inputLoanAmount.value = '';
 });
@@ -364,83 +416,4 @@ btnClose.addEventListener('click', function () {
   inputCloseUsername.value = inputClosePin.value = '';
 });
 
-
 //////////////////////////////////////////////////////////////////////
-// 1. Task 01
-
-// function checkDogs(par1, par2) {
-//   const par1_shallow_copy = par1.slice().slice(1, par1.at(-1) - 1);
-//   const combined_parameters = [...par1_shallow_copy, ...par2];
-//   combined_parameters.forEach((dog, i) => {
-//     console.log(
-//       dog >= 3
-//         ? `Dog number ${i + 1} is an adult, and is ${dog} years old `
-//         : `Dog number ${i + 1} is still a puppy 🐶 `
-//     );
-//   });
-// }
-
-// checkDogs([3, 5, 2, 12, 7], [4, 1, 15, 8, 3]);
-
-// 2. Task 02
-
-// function calcAverageHumanAge(arr) {
-//   const humanAge = arr
-//     .map(ele => (ele <= 2 ? ele * 2 : 16 + ele * 4))
-//     .filter(ele => ele >= 18);
-
-//   const humanAve =
-//     humanAge.reduce((acc, ele) => acc + ele, 0) / humanAge.length;
-//   console.log(humanAge);
-//   console.log(humanAve);
-// }
-
-// calcAverageHumanAge([5, 2, 4, 1, 15, 8, 3]);
-
-// 3. Task 03
-
-// const dogs = [
-//   { weight: 22, curFood: 250, owners: ['Alice', 'Bob'] },
-//   { weight: 8, curFood: 200, owners: ['Matida'] },
-//   { weight: 13, curFood: 275, owners: ['Sarah', 'John'] },
-//   { weight: 32, curFood: 340, owners: ['Micheal'] },
-// ];
-
-// // 1. ForEach
-// const recommandedDogFood = dogs.forEach(
-//   dog => (dog.recommendedFood = dog.weight ** 0.75 * 28)
-// );
-
-// // 2. Find Sarah's dog
-// const sarahsDog =
-//   dogs.find(dog => dog.owners.includes('Sarah')).curFood >
-//   dogs.find(dog => dog.owners.includes('Sarah'))?.recommendedFood
-//     ? "it's eating to much"
-//     : "it's eating to littel";
-
-// // 3. Arrays of owners
-// const { ownerEatTooMuch, ownerEatTooLittet } = dogs.reduce(
-//   (owners, cur) => {
-//     cur.curFood > cur.recommendedFood
-//       ? owners['ownerEatTooMuch'].push(...cur.owners)
-//       : owners['ownerEatTooLittet'].push(...cur.owners);
-//     return owners;
-//   },
-//   {
-//     ownerEatTooMuch: [],
-//     ownerEatTooLittet: [],
-//   }
-// );
-
-// // 4. Strings
-// console.log(ownerEatTooMuch.join(' and ') + "'s dog eat too much");
-// console.log(ownerEatTooLittet.join(' and ') + "'s dog ease to little");
-
-// // 8.
-
-// console.log(dogs.slice().sort((a, b) => a.recommendedFood - b.recommendedFood));
-
-const randomInt = (min, max) =>
-  Math.trunc(Math.random() * (max - min + 1) + min);
-
-console.log(randomInt(5, 10));
