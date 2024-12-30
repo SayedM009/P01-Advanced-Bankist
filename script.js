@@ -295,16 +295,7 @@ function login(e) {
   startLogoutTimer();
 
   // 7. Set the owner name of the account info logout section
-  logoutUsername.innerHTML += `Welcome Back, ${currentAcc.owner}`;
-
-  const userNamesFromAccounts = accounts.map(account => account.username);
-  userNamesFromAccounts.forEach(userName => {
-    const userElement = document.createElement(`li`);
-    userElement.classList.add('users__item');
-    userElement.innerHTML = userName === currentAcc.userName ? '' : userName;
-    console.log(userElement);
-    usersList.prepend(userElement);
-  });
+  logoutUsername.innerHTML = `Welcome Back, ${currentAcc.owner}`;
 
   // 8. Hide the login section and display the bank main section
   loginSection.style.display = 'none';
@@ -313,8 +304,13 @@ function login(e) {
   // 9. Update the UI
   updatedUI();
 
+  // 10. Create the user names for the switch list
+  createUsersNamesforSwitchList()
+
+  // 11. Hide the window model
   hideWindowModel();
 }
+
 
 // LOGIN WITH MOUSE CLICK
 btnLogin.addEventListener('click', login);
@@ -440,34 +436,67 @@ switchAccountBtn.addEventListener('click', function (e) {
   usersList.classList.toggle('display');
 });
 
-let swichedUser;
+// CREATE USERS NAMES FOR THE SWITCH LIST
+function createUsersNamesforSwitchList() {
+  // 1. Empty the users list
+  usersList.innerHTML = ""
+  // 2. Create the user names for the switch list
+  const  userNamesFromAccounts = accounts.map(account => account.username);
+  // 3. Add the user names to the switch list
+  userNamesFromAccounts.forEach(userName => {
+    // 4. Check if the user name is the same as the current account user name
+    if (userName === currentAcc.username) return
+      // 5. Create the user name list item
+      const li = document.createElement(`li`);
+      // 6. Add the user name to the list item
+      li.classList.add('users__item');
+      // 7. Add the user name to the list item
+      li.innerHTML = userName
+      // 8. Add the list item to the users list 
+      usersList.prepend(li);
+  });}
 
+
+// SWITCH ACCOUNT
+let swichedUser;
 usersList.addEventListener('click', function (e) {
-  console.log(e.target);
-  e.target.addEventListener('click', function () {
-    if (e.target.classList.contains('users__item')) {
+  
+  // 1. Check if the user clicked on a user name
+  e.target.addEventListener('click', function (e) {
+    // 2. Check if the user clicked on a user name
+    if (!(e.target.classList.contains('users__item')) && !(e.target.innerHTML !== currentAcc.username)) return
+    // 3. Get the user name of the clicked user
       swichedUser = e.target.innerHTML;
+      // 4. Display the switch account name in the window model
       windowModelSwitchedName.textContent = swichedUser;
+      // 5. Display the window model
       windowModel.classList.add('display__window--model');
-    }
   });
 });
 
-windowModelOverLay.addEventListener('click', function () {
-  windowModel.classList.remove('display__window--model');
-});
-
+// SWITCH ACCOUNT YES BUTTON
 windowModelYesBtn.addEventListener('click', function () {
+  // 1. Hide the UI
   hideUI();
+  // 2. Hide the users list
   usersList.classList.remove('display');
+  // 3. Pass the switched user to the login input
   inputLoginUsername.value = swichedUser;
+  // 4. Focus on the pin input
   inputLoginPin.focus();
 });
 
+// HIDE WINDOW MODEL FROM OVERLAY
+windowModelOverLay.addEventListener('click', hideWindowModel);
+
+// HIDE WINDOW MODEL NO BUTTON
 windowModelNoBtn.addEventListener('click', hideWindowModel);
 
+// HIDE WINDOW MODEL FUNCTION
 function hideWindowModel() {
+  // 1. Hide the window model
   windowModel.classList.remove('display__window--model');
+  // 2. Hide the users list
   usersList.classList.remove('display');
 }
 //////////////////////////////////////////////////////////////////////
