@@ -109,9 +109,17 @@ const inputLoanAmount = document.querySelector('.form__input--loan-amount');
 const inputCloseUsername = document.querySelector('.form__input--user');
 const inputClosePin = document.querySelector('.form__input--pin');
 
-const switchAccount = document.querySelector('.swithc-icon');
+const switchAccountBtn = document.querySelector('.users__list--arrows');
+const usersList = document.querySelector('.users__list');
 const logoutUsername = document.querySelector('.logout-username');
 const logoutBtn = document.querySelector('.logout-btn');
+const windowModel = document.querySelector('.window-model');
+const windowModelSwitchedName = document.querySelector(
+  '.switched__account--name'
+);
+const windowModelOverLay = document.querySelector('.window-model__overlay');
+const windowModelYesBtn = document.querySelector('.window-model__btn--yes');
+const windowModelNoBtn = document.querySelector('.window-model__btn--no');
 
 /////////////////////////////////////////////////
 /////////////////////////////////////////////////
@@ -287,7 +295,16 @@ function login(e) {
   startLogoutTimer();
 
   // 7. Set the owner name of the account info logout section
-  logoutUsername.textContent = `${currentAcc.owner} `;
+  logoutUsername.innerHTML += `Welcome Back, ${currentAcc.owner}`;
+
+  const userNamesFromAccounts = accounts.map(account => account.username);
+  userNamesFromAccounts.forEach(userName => {
+    const userElement = document.createElement(`li`);
+    userElement.classList.add('users__item');
+    userElement.innerHTML = userName === currentAcc.userName ? '' : userName;
+    console.log(userElement);
+    usersList.prepend(userElement);
+  });
 
   // 8. Hide the login section and display the bank main section
   loginSection.style.display = 'none';
@@ -295,6 +312,8 @@ function login(e) {
 
   // 9. Update the UI
   updatedUI();
+
+  hideWindowModel();
 }
 
 // LOGIN WITH MOUSE CLICK
@@ -416,4 +435,39 @@ btnClose.addEventListener('click', function () {
   inputCloseUsername.value = inputClosePin.value = '';
 });
 
+// SWITCH ACCOUNT
+switchAccountBtn.addEventListener('click', function (e) {
+  usersList.classList.toggle('display');
+});
+
+let swichedUser;
+
+usersList.addEventListener('click', function (e) {
+  console.log(e.target);
+  e.target.addEventListener('click', function () {
+    if (e.target.classList.contains('users__item')) {
+      swichedUser = e.target.innerHTML;
+      windowModelSwitchedName.textContent = swichedUser;
+      windowModel.classList.add('display__window--model');
+    }
+  });
+});
+
+windowModelOverLay.addEventListener('click', function () {
+  windowModel.classList.remove('display__window--model');
+});
+
+windowModelYesBtn.addEventListener('click', function () {
+  hideUI();
+  usersList.classList.remove('display');
+  inputLoginUsername.value = swichedUser;
+  inputLoginPin.focus();
+});
+
+windowModelNoBtn.addEventListener('click', hideWindowModel);
+
+function hideWindowModel() {
+  windowModel.classList.remove('display__window--model');
+  usersList.classList.remove('display');
+}
 //////////////////////////////////////////////////////////////////////

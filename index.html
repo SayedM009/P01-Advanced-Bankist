@@ -153,10 +153,29 @@
 
       <!-- USERNAME & LOGOUT BUTTON -->
       <section class="logout-section">
-        <p class="logout-username"></p>
-
+        <div class="logout__users--container">
+          <p class="logout-username">
+            <ul class="users__list">
+              
+            </ul>
+          </p>
+          <span class="users__list--arrows"> &uarr; &darr;</span>
+        </div>
         <button class="logout-btn" type="button">logout</button>
       </section>
+
+      <!-- WINDOW MODEL TO OPEN SWITCH BETWEEN ACCOUNTS -->
+       <div class="window-model">
+        <div class="window-model__overlay"></div>
+        <div class="window-model__container">
+          <h2 class="window-model__header"> Are you want to switch to <span class="switched__account--name">....</span> account ? </h2>
+          <div class="window-model__buttons">
+            <button class="window-model__btn window-model__btn--yes" type="button">YES</button>
+            <button class="window-model__btn window-model__btn--no" type="button">NO</button>
+          </div>
+
+        </div>
+       </div>
     </main>
 
     <!-- <footer>
